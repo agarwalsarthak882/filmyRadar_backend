@@ -13,7 +13,7 @@ const getMediaList = require('./getMediaList');
 //Code.
 const app = express();
 app.use(cors({
-  origin: ('http://localhost:5173'||'https://filmyradar.netlify.app/') // Replace with your frontend's origin
+  origin: ('http://localhost:5173'||'https://filmyradar.netlify.app') // Replace with your frontend's origin
 }));
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
