@@ -107,6 +107,12 @@ async function mediaVideos(id, type) {
     );
 }
 
+function genreFind(genreArr) {
+    let genres = genreArr.map((genre) => {
+        return (genre.name)
+    })
+    return genres;
+}
 
 async function media(element, type, category) {
     if (category === 'query') {
@@ -116,15 +122,8 @@ async function media(element, type, category) {
                     type: 'movie',
                     id: element.id,
                     title: element.title,
-                    // overview: element.overview,
                     poster_path: "https://image.tmdb.org/t/p/w500" + element.poster_path,
-                    // release_date: element.release_date,
-                    // genres: (element.genre_ids).map((genre_id) => {
-                    //     return (genre_ids_list_movie[genre_id])
-                    // }),
                     original_language: element.original_language,
-                    // images: (await mediaImgs(element.id, type)),
-                    // videos: (await mediaVideos(element.id, type)),
                     ratings: (await mediaRatings(element.title, element.release_date))
                 }
             )
@@ -134,57 +133,47 @@ async function media(element, type, category) {
                     type: 'tv',
                     id: element.id,
                     title: element.name,
-                    // overview: element.overview,
                     original_language: element.original_language,
                     poster_path: "https://image.tmdb.org/t/p/w500" + element.poster_path,
-                    // release_date: element.first_air_date,
-                    // genres: (element.genre_ids).map((genre_id) => {
-                    //     return (genre_ids_list_tv[genre_id])
-                    // }),
-                    // images: (await mediaImgs(element.id, type)),
-                    // videos: (await mediaVideos(element.id, type)),
                     ratings: (await mediaRatings(element.title, element.first_air_date))
                 }
             )
     }
-    else if(category==='search')
-    {
+    else if (category === 'search') {
+
         if (type === "movie")
-        return (
-            {
-                type: 'movie',
-                id: element.id,
-                title: element.title,
-                overview: element.overview,
-                poster_path: "https://image.tmdb.org/t/p/w500" + element.poster_path,
-                release_date: element.release_date,
-                genres: (element.genre_ids).map((genre_id) => {
-                    return (genre_ids_list_movie[genre_id])
-                }),
-                original_language: element.original_language,
-                images: (await mediaImgs(element.id, type)),
-                videos: (await mediaVideos(element.id, type)),
-                ratings: (await mediaRatings(element.title, element.release_date))
-            }
-        )
-    else if (type === "tv")
-        return (
-            {
-                type: 'tv',
-                id: element.id,
-                title: element.name,
-                overview: element.overview,
-                original_language: element.original_language,
-                poster_path: "https://image.tmdb.org/t/p/w500" + element.poster_path,
-                release_date: element.first_air_date,
-                genres: (element.genre_ids).map((genre_id) => {
-                    return (genre_ids_list_tv[genre_id])
-                }),
-                images: (await mediaImgs(element.id, type)),
-                videos: (await mediaVideos(element.id, type)),
-                ratings: (await mediaRatings(element.title, element.first_air_date))
-            }
-        )
+            return (
+                {
+                    type: 'movie',
+                    id: element.id,
+                    title: element.title,
+                    overview: element.overview,
+                    poster_path: "https://image.tmdb.org/t/p/w500" + element.poster_path,
+                    release_date: element.release_date,
+                    genre: genreFind(element.genres),
+
+                    original_language: element.original_language,
+                    images: (await mediaImgs(element.id, type)),
+                    videos: (await mediaVideos(element.id, type)),
+                    ratings: (await mediaRatings(element.title, element.release_date))
+                }
+            )
+        else if (type === "tv")
+            return (
+                {
+                    type: 'tv',
+                    id: element.id,
+                    title: element.name,
+                    overview: element.overview,
+                    original_language: element.original_language,
+                    poster_path: "https://image.tmdb.org/t/p/w500" + element.poster_path,
+                    release_date: element.first_air_date,
+                    genre: genreFind(element.genres),
+                    images: (await mediaImgs(element.id, type)),
+                    videos: (await mediaVideos(element.id, type)),
+                    ratings: (await mediaRatings(element.title, element.first_air_date))
+                }
+            )
     }
 
 };
