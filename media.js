@@ -144,6 +144,7 @@ async function media(element, type, category) {
         if (type === "movie")
             return (
                 {
+                    adult: element.adult,
                     type: 'movie',
                     id: element.id,
                     title: element.title,
@@ -161,6 +162,7 @@ async function media(element, type, category) {
         else if (type === "tv")
             return (
                 {
+                    adult: element.adult,
                     type: 'tv',
                     id: element.id,
                     title: element.name,

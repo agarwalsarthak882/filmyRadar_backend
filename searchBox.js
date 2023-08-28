@@ -21,9 +21,6 @@ async function searchBox(app) {
 
 
 
-
-
-
     app.post('/searchInfo', async (req, res) => {
         if (req.body.type == 'movie' || 'null') {
             try {
