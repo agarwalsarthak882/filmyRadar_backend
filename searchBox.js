@@ -28,23 +28,22 @@ async function searchBox(app) {
         if (req.body.type == 'movie' || 'null') {
             try {
                 let movieData = await media((await axios.get('https://api.themoviedb.org/3/movie/' + req.body.id + '?api_key=' + process.env.TMDB_KEY)).data, 'movie', 'search')
-                // console.log(movieData.data);
-                // res.json(movieData.data)
+                res.json(movieData)
             }
             catch (e) {
                 try {
                     let tvData = await media((await axios.get('https://api.themoviedb.org/3/tv/' + req.body.id + '?api_key=' + process.env.TMDB_KEY)).data, 'movie', 'search')
-                    // console.log(tvData.data)
+                    res.json(tvData)
                 }
                 catch (err) {
-                    console.log(err)
+                    console.log('err')
                 }
             }
         }
         else if (req.body.type == 'tv') {
             try {
                 let tvData = media((await axios.get('https://api.themoviedb.org/3/tv/' + req.body.id + '?api_key=' + process.env.TMDB_KEY)).data, 'tv', 'search')
-                res.json(tvData.data)
+                res.json(tvData)
             }
             catch (e) {
                 res.json('not found')
