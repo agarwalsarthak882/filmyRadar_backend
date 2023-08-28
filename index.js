@@ -9,6 +9,7 @@ const { MongoClient } = require('mongodb');
 const auth = require('./auth');
 const searchBox = require('./searchBox');
 const getMediaList = require('./getMediaList');
+const { default: axios } = require('axios');
 
 //Code.
 const app = express();
@@ -27,3 +28,13 @@ client.connect();
 auth(app);
 searchBox(app);
 getMediaList(app);
+
+function pingLink() {
+  const linkToPing = 'https://filmyradar-backend.onrender.com/movie/top_rated'; // Replace with the link you want to ping
+let data=axios.get(linkToPing)
+data.then(res=>{})
+}
+
+// Ping the link every 10 minutes (10 minutes = 600,000 milliseconds)
+const pingInterval = 10*60*1000;
+setInterval(pingLink, pingInterval);
