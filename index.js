@@ -14,7 +14,7 @@ const { default: axios } = require('axios');
 //Code.
 const app = express();
 app.use(cors({
-  origin: ['http://localhost:5173','https://filmyradar.netlify.app'] // Replace with your frontend's origin
+  origin: ['http://localhost:5173','https://filmyradar.netlify.app','https://main--filmyradar.netlify.app','https://64f3919cf563cd00085f8d59--filmyradar.netlify.app/'] // Replace with your frontend's origin
 }));
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
