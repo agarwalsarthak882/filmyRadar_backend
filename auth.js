@@ -6,28 +6,7 @@ const client = new MongoClient(uri);
 client.connect();
 
 
-async function checkUsername(data) {
-  const db = client.db('FilmyRadar');
-  const coll = db.collection('UserCredentials');
-  const coll1 = db.collection('UserData');
-  const check = await coll.findOne({ username: data.username });
-  if (check == null) {
-    if ('fname' in data) {
-      if (await insertData(data))
-        console.log('hello ji');
-      return (await coll1.findOne({ username: data.username }))
-    }
-    else {
-      return false
-    }
-  }
-  else {
-    if ('fname' in data)
-      return false
-    else
-      return (check.salt);
-  }
-}
+
 
 async function insertData(data) {
   const db = client.db('FilmyRadar');
@@ -91,6 +70,29 @@ async function checkLoginData(data) {
   }
 }
 
+
+async function checkUsername(data) {
+  const db = client.db('FilmyRadar');
+  const coll = db.collection('UserCredentials');
+  const coll1 = db.collection('UserData');
+  const check = await coll.findOne({ username: data.username });
+  if (check == null) {
+    if ('fname' in data) {
+      if (await insertData(data))
+        console.log('hello ji');
+      return (await coll1.findOne({ username: data.username }))
+    }
+    else {
+      return false
+    }
+  }
+  else {
+    if ('fname' in data)
+      return false
+    else
+      return (check.salt);
+  }
+}
 
 
 async function hashPass(message) {
