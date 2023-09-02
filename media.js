@@ -114,6 +114,13 @@ function genreFind(genreArr) {
     return genres;
 }
 
+function languageName(langCode){
+    const languageNames = new Intl.DisplayNames(['en'], {
+        type: 'language'
+      });
+      return(languageNames.of(langCode))
+}
+
 async function media(element, type, category) {
     if (category === 'query') {
         if (type === "movie")
@@ -153,7 +160,7 @@ async function media(element, type, category) {
                     release_date: element.release_date,
                     genre: genreFind(element.genres),
 
-                    original_language: element.original_language,
+                    original_language: languageName(element.original_language),
                     images: (await mediaImgs(element.id, type)),
                     videos: (await mediaVideos(element.id, type)),
                     ratings: (await mediaRatings(element.title, element.release_date))
@@ -167,7 +174,7 @@ async function media(element, type, category) {
                     id: element.id,
                     title: element.name,
                     overview: element.overview,
-                    original_language: element.original_language,
+                    original_language: languageName(element.original_language),
                     poster_path: "https://image.tmdb.org/t/p/w500" + element.poster_path,
                     release_date: element.first_air_date,
                     genre: genreFind(element.genres),
