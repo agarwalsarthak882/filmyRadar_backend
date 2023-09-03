@@ -6,11 +6,10 @@ const media = require('./media');
 async function searchBox(app) {
     app.post("/search", async (req, res) => {
         try {
-            let movieData = (await mediaArray((await axios.get("https://api.themoviedb.org/3/search/movie?api_key=" + process.env.TMDB_KEY + "&query=" + req.body.searchText)).data, "movie", 'search'));
+            let movieData = await (mediaArray((await axios.get("https://api.themoviedb.org/3/search/movie?api_key=" + process.env.TMDB_KEY + "&query=" + req.body.searchText)).data, 'movie', 'query'));
 
-            let tvData = (await mediaArray((await axios.get("https://api.themoviedb.org/3/search/tv?api_key=" + process.env.TMDB_KEY + "&query=" + req.body.searchText)).data, "tv", 'search'));
-
-            res.json(movieData, tvData);
+            let tvData = await mediaArray((await axios.get("https://api.themoviedb.org/3/search/tv?api_key=" + process.env.TMDB_KEY + "&query=" + req.body.searchText)).data, 'tv', 'query');
+            res.json([movieData,tvData]);
         }
         catch (err) {
             console.log('err');
