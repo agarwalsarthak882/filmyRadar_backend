@@ -1,5 +1,6 @@
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const { MongoClient } = require('mongodb');
 const uri = process.env.MONGO_URL;
 const client = new MongoClient(uri);
@@ -62,11 +63,23 @@ async function checkLoginData(data) {
       return (false)
     }
     else {
-      return (await coll2.findOne(data2))
+      userData = await coll2.findOne(data2)
+      let expTime = '30 days'
+      var token = jwt.sign(userData, process.env.TOKEN, { expiresIn: expTime });
+
+      // jwt.verify(token, process.env.TOKEN, function (err, decoded) {
+      //   console.log(decoded);
+      // });
+      let finalData = {
+        data: userData,
+        token: token,
+        expireTime: expTime
+      }
+      return (finalData)
     }
   }
   catch (err) {
-    console.log('err');
+    console.log(err);
   }
 }
 
@@ -78,9 +91,17 @@ async function checkUsername(data) {
   const check = await coll.findOne({ username: data.username });
   if (check == null) {
     if ('fname' in data) {
-      if (await insertData(data))
-        console.log('hello ji');
-      return (await coll1.findOne({ username: data.username }))
+      if (await insertData(data)) {
+        let userData = (await coll1.findOne({ username: data.username }))
+        let expTime = '30 days'
+        var token = jwt.sign(userData, process.env.TOKEN, { expiresIn: expTime });
+        let finalData = {
+          data: userData,
+          token: token,
+          expireTime: expTime
+        }
+        return (finalData)
+      }
     }
     else {
       return false
@@ -117,6 +138,7 @@ async function hashPass(message) {
 
 
 function auth(app) {
+  //Login post request
   app.post('/login', async (req, res) => {
     const message = req.body.credentials;
     const checkHash = await hashPass(message)
@@ -130,6 +152,7 @@ function auth(app) {
     }
   });
 
+  //Register post request
   app.post('/register', async (req, res) => {
     const message = req.body.formData;
     res.json(await checkUsername(await hashPass(message)));
