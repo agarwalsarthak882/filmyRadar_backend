@@ -49,9 +49,24 @@ async function insertData(data) {
 }
 
 
-function verifyToken(token) {
-  return (jwt.verify(token, process.env.TOKEN, { expiresIn: 30, audience: process.env.JWT_AUD }, (err, decoded) => (decoded)
+async function verifyToken(token) {
+  let tokenData = (jwt.verify(token, process.env.TOKEN, { expiresIn: 30, audience: process.env.JWT_AUD }, (err, decoded) => (decoded)
   ))
+  if (tokenData === undefined)
+    return (tokenData)
+  else {
+    let data = {
+      username: tokenData.username
+    }
+    const db = client.db('FilmyRadar');
+    const coll1 = db.collection('UserData')
+    const query = await coll1.findOne(data);
+    if (query._id.toString() == tokenData.id)
+    {
+      return(query);
+    }
+  }
+
 }
 
 
@@ -67,13 +82,19 @@ async function checkLoginData(data) {
     }
     else {
       userData = await coll2.findOne(data2)
+      let cookieData = {
+        id: userData._id,
+        username: userData.username,
+        fname: userData.fname,
+        gender: userData.gender
+      }
       let expTime = '30 days'
-      var token = jwt.sign(userData, process.env.TOKEN, { expiresIn: expTime, audience: process.env.JWT_AUD });
+      var token = jwt.sign(cookieData, process.env.TOKEN, { expiresIn: expTime, audience: process.env.JWT_AUD });
       let finalData = {
+        cookieData: cookieData,
         data: userData,
         token: token,
         expireTime: expTime,
-
       }
       return (finalData)
     }
@@ -93,9 +114,16 @@ async function checkUsername(data) {
     if ('fname' in data) {
       if (await insertData(data)) {
         let userData = (await coll1.findOne({ username: data.username }))
+        let cookieData = {
+          id: userData._id,
+          username: userData.username,
+          fname: userData.fname,
+          gender: userData.gender
+        }
         let expTime = '30 days'
-        var token = jwt.sign(userData, process.env.TOKEN, { expiresIn: expTime, audience: process.env.JWT_ENV });
+        var token = jwt.sign(cookieData, process.env.TOKEN, { expiresIn: expTime, audience: process.env.JWT_ENV });
         let finalData = {
+          cookieData: cookieData,
           data: userData,
           token: token,
           expireTime: expTime
@@ -152,12 +180,12 @@ function auth(app) {
 
   //verification of token
   app.post('/verify', async (req, res) => {
-    const message = req.body.token
-    let check = verifyToken(message)
+    const message = req.body
+    let check =await verifyToken(message.token)
     if (check === undefined)
       res.json('false')
     else
-      res.json('true')
+      res.json(check)
 
   });
 
