@@ -55,15 +55,19 @@ async function verifyToken(token) {
   if (tokenData === undefined)
     return (tokenData)
   else {
-    let data = {
-      username: tokenData.username
+    try {
+      let data = {
+        username: tokenData.username
+      }
+      const db = client.db('FilmyRadar');
+      const coll1 = db.collection('UserData')
+      const query = await coll1.findOne(data);
+      if (query._id.toString() == tokenData.id) {
+        return (query);
+      }
     }
-    const db = client.db('FilmyRadar');
-    const coll1 = db.collection('UserData')
-    const query = await coll1.findOne(data);
-    if (query._id.toString() == tokenData.id)
-    {
-      return(query);
+    catch (err) {
+      return (undefined)
     }
   }
 
@@ -81,22 +85,28 @@ async function checkLoginData(data) {
       return (false)
     }
     else {
-      userData = await coll2.findOne(data2)
-      let cookieData = {
-        id: userData._id,
-        username: userData.username,
-        fname: userData.fname,
-        gender: userData.gender
+      try {
+
+        userData = await coll2.findOne(data2)
+        let cookieData = {
+          id: userData._id,
+          username: userData.username,
+          fname: userData.fname,
+          gender: userData.gender
+        }
+        let expTime = '30 days'
+        var token = jwt.sign(cookieData, process.env.TOKEN, { expiresIn: expTime, audience: process.env.JWT_AUD });
+        let finalData = {
+          cookieData: cookieData,
+          data: userData,
+          token: token,
+          expireTime: expTime,
+        }
+        return (finalData)
       }
-      let expTime = '30 days'
-      var token = jwt.sign(cookieData, process.env.TOKEN, { expiresIn: expTime, audience: process.env.JWT_AUD });
-      let finalData = {
-        cookieData: cookieData,
-        data: userData,
-        token: token,
-        expireTime: expTime,
+      catch(error){
+        return(false)
       }
-      return (finalData)
     }
   }
   catch (err) {
@@ -121,7 +131,7 @@ async function checkUsername(data) {
           gender: userData.gender
         }
         let expTime = '30 days'
-        var token = jwt.sign(cookieData, process.env.TOKEN, { expiresIn: expTime, audience: process.env.JWT_ENV });
+        var token = jwt.sign(cookieData, process.env.TOKEN, { expiresIn: expTime, audience: process.env.JWT_AUD });
         let finalData = {
           cookieData: cookieData,
           data: userData,
@@ -146,11 +156,11 @@ async function checkUsername(data) {
 
 async function hashPass(message) {
   if ('fname' in message) {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPass = await bcrypt.hash(message.password, salt);
-    message.password = hashedPass;
+    const salt = await bcrypt.genSalt(10)
+    const hashedPass = await bcrypt.hash(message.password, salt)
+    message.password = hashedPass
     message.salt = salt
-    return (message);
+    return (message)
   }
   else {
     const saltCheck = (await checkUsername(message))
@@ -181,7 +191,7 @@ function auth(app) {
   //verification of token
   app.post('/verify', async (req, res) => {
     const message = req.body
-    let check =await verifyToken(message.token)
+    let check = await verifyToken(message.token)
     if (check === undefined)
       res.json('false')
     else
@@ -192,6 +202,7 @@ function auth(app) {
   //Register post request
   app.post('/register', async (req, res) => {
     const message = req.body.formData;
+    console.log(message);
     res.json(await checkUsername(await hashPass(message)));
   });
 }
