@@ -7,8 +7,6 @@ const client = new MongoClient(uri);
 client.connect();
 
 
-
-
 async function insertData(data) {
   const db = client.db('FilmyRadar');
   const coll1 = db.collection('UserCredentials');
@@ -51,13 +49,18 @@ async function insertData(data) {
 }
 
 
+function verifyToken(token) {
+  return (jwt.verify(token, process.env.TOKEN, { expiresIn: 30, audience: process.env.JWT_AUD }, (err, decoded) => (decoded)
+  ))
+}
+
+
 async function checkLoginData(data) {
   const db = client.db('FilmyRadar');
   const coll = db.collection('UserCredentials');
   const coll2 = db.collection('UserData')
   const data2 = { username: (data.username) }
   try {
-    // console.log(data);
     const query = await coll.findOne(data);
     if (query == null) {
       return (false)
@@ -65,15 +68,12 @@ async function checkLoginData(data) {
     else {
       userData = await coll2.findOne(data2)
       let expTime = '30 days'
-      var token = jwt.sign(userData, process.env.TOKEN, { expiresIn: expTime });
-
-      // jwt.verify(token, process.env.TOKEN, function (err, decoded) {
-      //   console.log(decoded);
-      // });
+      var token = jwt.sign(userData, process.env.TOKEN, { expiresIn: expTime, audience: process.env.JWT_AUD });
       let finalData = {
         data: userData,
         token: token,
-        expireTime: expTime
+        expireTime: expTime,
+
       }
       return (finalData)
     }
@@ -94,7 +94,7 @@ async function checkUsername(data) {
       if (await insertData(data)) {
         let userData = (await coll1.findOne({ username: data.username }))
         let expTime = '30 days'
-        var token = jwt.sign(userData, process.env.TOKEN, { expiresIn: expTime });
+        var token = jwt.sign(userData, process.env.TOKEN, { expiresIn: expTime, audience: process.env.JWT_ENV });
         let finalData = {
           data: userData,
           token: token,
@@ -135,8 +135,6 @@ async function hashPass(message) {
   }
 }
 
-
-
 function auth(app) {
   //Login post request
   app.post('/login', async (req, res) => {
@@ -150,6 +148,17 @@ function auth(app) {
     else {
       res.json(await checkLoginData(checkHash));
     }
+  });
+
+  //verification of token
+  app.post('/verify', async (req, res) => {
+    const message = req.body.token
+    let check = verifyToken(message)
+    if (check === undefined)
+      res.json('false')
+    else
+      res.json('true')
+
   });
 
   //Register post request
