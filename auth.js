@@ -13,7 +13,7 @@ async function insertData(data) {
   const coll2 = db.collection('UserData');
   const data2 = {
     username: data.username,
-    fname: data.fname,
+    name: data.name,
     gender: data.gender,
     watching: {
       movies: [],
@@ -86,16 +86,15 @@ async function checkLoginData(data) {
     }
     else {
       try {
-
         userData = await coll2.findOne(data2)
         let cookieData = {
           id: userData._id,
           username: userData.username,
-          fname: userData.fname,
+          name: userData.name,
           gender: userData.gender
         }
         let expTime = '30 days'
-        var token = jwt.sign(cookieData, process.env.TOKEN, { expiresIn: expTime, audience: process.env.JWT_AUD });
+        let token = jwt.sign(cookieData, process.env.TOKEN, { expiresIn: expTime, audience: process.env.JWT_AUD });
         let finalData = {
           cookieData: cookieData,
           data: userData,
@@ -121,13 +120,13 @@ async function checkUsername(data) {
   const coll1 = db.collection('UserData');
   const check = await coll.findOne({ username: data.username });
   if (check == null) {
-    if ('fname' in data) {
+    if ('name' in data) {
       if (await insertData(data)) {
         let userData = (await coll1.findOne({ username: data.username }))
         let cookieData = {
           id: userData._id,
           username: userData.username,
-          fname: userData.fname,
+          name: userData.name,
           gender: userData.gender
         }
         let expTime = '30 days'
@@ -146,7 +145,7 @@ async function checkUsername(data) {
     }
   }
   else {
-    if ('fname' in data)
+    if ('name' in data)
       return false
     else
       return (check.salt);
@@ -155,7 +154,7 @@ async function checkUsername(data) {
 
 
 async function hashPass(message) {
-  if ('fname' in message) {
+  if ('name' in message) {
     const salt = await bcrypt.genSalt(10)
     const hashedPass = await bcrypt.hash(message.password, salt)
     message.password = hashedPass
@@ -207,13 +206,4 @@ function auth(app) {
   });
 }
 
-
-
-// async function del(data){
-//   const db = client.db('FilmyRadar');
-//   const coll = db.collection('UserCredentials');
-//   const coll2 = db.collection('UserData');
-//   await coll.deleteMany(data);
-//   await coll2.deleteMany(data);
-// }
 module.exports = auth;

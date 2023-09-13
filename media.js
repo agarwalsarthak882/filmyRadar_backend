@@ -41,29 +41,54 @@ var genre_ids_list_tv = {
 }
 
 async function mediaRatings(name, date) {
-    const year = (date.split('-'))[0];
-    try {
-        let TData = ((await axios.get('https://www.omdbapi.com/?s=' + name + '&y=' + year + '&apikey=' + process.env.OMDB_KEY)).data.Search)
-        if (TData === undefined) {
-            TData = ((await axios.get('https://www.omdbapi.com/?s=' + name + '&apikey=' + process.env.OMDB_KEY)).data.Search)
+    if (date !== undefined) {
+        let year = (date.split('-'))[0];
+        try {
+            let TData = ((await axios.get('https://www.omdbapi.com/?s=' + name + '&y=' + year + '&apikey=' + process.env.OMDB_KEY)).data.Search)
+            if (TData === undefined) {
+                TData = ((await axios.get('https://www.omdbapi.com/?s=' + name + '&apikey=' + process.env.OMDB_KEY)).data.Search)
+            }
+            if (TData === undefined)
+                return (null)
+            else {
+                const imdb_id = TData[0].imdbID
+                const ratings = ((await axios.get('https://www.omdbapi.com/?i=' + imdb_id + '&apikey=' + process.env.OMDB_KEY)).data.Ratings)
+                return (
+                    ratings.map((item) => {
+                        return (
+                            {
+                                [item.Source]: item.Value
+                            }
+                        )
+                    })
+                )
+            }
         }
-        if (TData === undefined)
-            return (null)
-        else {
-            const imdb_id = TData[0].imdbID
-            const ratings = ((await axios.get('https://www.omdbapi.com/?i=' + imdb_id + '&apikey=' + process.env.OMDB_KEY)).data.Ratings)
-            return (
-                ratings.map((item) => {
-                    return (
-                        {
-                            [item.Source]: item.Value
-                        }
-                    )
-                })
-            )
+        catch (err) {
         }
     }
-    catch (err) {
+    else
+    {
+        try {
+            let TData = ((await axios.get('https://www.omdbapi.com/?s=' + name + '&apikey=' + process.env.OMDB_KEY)).data.Search)
+            if (TData === undefined)
+                return (null)
+            else {
+                const imdb_id = TData[0].imdbID
+                const ratings = ((await axios.get('https://www.omdbapi.com/?i=' + imdb_id + '&apikey=' + process.env.OMDB_KEY)).data.Ratings)
+                return (
+                    ratings.map((item) => {
+                        return (
+                            {
+                                [item.Source]: item.Value
+                            }
+                        )
+                    })
+                )
+            }
+        }
+        catch (err) {
+        }
     }
 }
 
@@ -114,11 +139,11 @@ function genreFind(genreArr) {
     return genres;
 }
 
-function languageName(langCode){
+function languageName(langCode) {
     const languageNames = new Intl.DisplayNames(['en'], {
         type: 'language'
-      });
-      return(languageNames.of(langCode))
+    });
+    return (languageNames.of(langCode))
 }
 
 async function media(element, type, category) {
@@ -135,16 +160,16 @@ async function media(element, type, category) {
                 }
             )
         else if (type === "tv")
-            return (
-                {
-                    type: 'tv',
-                    id: element.id,
-                    title: element.name,
-                    original_language: element.original_language,
-                    poster_path: "https://image.tmdb.org/t/p/w500" + element.poster_path,
-                    ratings: (await mediaRatings(element.title, element.first_air_date))
-                }
-            )
+        return (
+            {
+                type: 'tv',
+                id: element.id,
+                title: element.name,
+                original_language: element.original_language,
+                poster_path: "https://image.tmdb.org/t/p/w500" + element.poster_path,
+                ratings: (await mediaRatings(element.title, element.first_air_date))
+            }
+        )
     }
     else if (category === 'search') {
 
