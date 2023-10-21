@@ -35,6 +35,6 @@ function pingLink() {
   data.then(res => { })
 }
 
-// Ping the link every 10 minutes (10 minutes = 600,000 milliseconds)
-const pingInterval = 10 * 60 * 1000;
+// Ping the link every 15 minutes (10 minutes = 600,000 milliseconds)
+const pingInterval = 15 * 60 * 1000;
 setInterval(pingLink, pingInterval);
